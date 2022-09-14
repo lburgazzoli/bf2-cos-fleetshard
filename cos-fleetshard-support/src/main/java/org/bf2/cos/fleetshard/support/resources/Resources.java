@@ -1,5 +1,8 @@
 package org.bf2.cos.fleetshard.support.resources;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
@@ -18,8 +21,14 @@ import io.fabric8.kubernetes.api.Pluralize;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.OwnerReference;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
+import io.fabric8.kubernetes.client.dsl.Resource;
+import io.fabric8.kubernetes.client.dsl.base.PatchContext;
+import io.fabric8.kubernetes.client.dsl.base.PatchType;
 import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext;
 import io.fabric8.kubernetes.client.utils.KubernetesResourceUtil;
+import io.fabric8.kubernetes.client.utils.Serialization;
 
 public final class Resources {
     private static final Logger LOGGER = LoggerFactory.getLogger(Resources.class);
@@ -251,5 +260,31 @@ public final class Resources {
         }
 
         return Long.toHexString(crc32.getValue());
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static HasMetadata createOrPatch(KubernetesClient client, HasMetadata resource) {
+        try {
+            NonNamespaceOperation r = client.resources(resource.getClass())
+                .inNamespace(resource.getMetadata().getNamespace());
+
+            return (HasMetadata) r.create(resource);
+        } catch (KubernetesClientException e) {
+            if (e.getCode() != HttpURLConnection.HTTP_CONFLICT) {
+                throw e;
+            }
+        }
+
+        byte[] currentContent = Serialization.asJson(resource).getBytes(StandardCharsets.UTF_8);
+
+        try (var bis = new ByteArrayInputStream(currentContent)) {
+            Resource r = client.resources(resource.getClass())
+                .inNamespace(resource.getMetadata().getNamespace())
+                .load(bis);
+
+            return (HasMetadata) r.patch(PatchContext.of(PatchType.JSON_MERGE), resource);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

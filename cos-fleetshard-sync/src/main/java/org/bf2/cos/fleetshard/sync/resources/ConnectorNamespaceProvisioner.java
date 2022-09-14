@@ -145,7 +145,7 @@ public class ConnectorNamespaceProvisioner {
                     fleetShard.getKubernetesClient()
                         .namespaces()
                         .withName(namespace.getMetadata().getName())
-                        .replace(namespace);
+                        .patch(namespace);
                 } catch (Exception e) {
                     LOGGER.warn("Error marking na {} for deletion (sync)", namespace.getMetadata().getName(), e);
                 }

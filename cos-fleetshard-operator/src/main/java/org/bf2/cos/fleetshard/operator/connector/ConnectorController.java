@@ -526,6 +526,10 @@ public class ConnectorController implements Reconciler<ManagedConnector>, EventS
                 }
             });
 
+            // deploy to the same namespace
+            resource.getMetadata().setNamespace(connector.getMetadata().getNamespace());
+
+            // set the connector as owner for cascade deleting
             resource.getMetadata().setOwnerReferences(List.of(
                 new OwnerReferenceBuilder()
                     .withApiVersion(connector.getApiVersion())
@@ -536,9 +540,7 @@ public class ConnectorController implements Reconciler<ManagedConnector>, EventS
                     .withBlockOwnerDeletion(true)
                     .build()));
 
-            var result = kubernetesClient.resource(resource)
-                .inNamespace(connector.getMetadata().getNamespace())
-                .createOrReplace();
+            var result = Resources.createOrPatch(kubernetesClient, resource);
 
             LOGGER.debug("Resource {}:{}:{}@{} updated/created",
                 result.getApiVersion(),

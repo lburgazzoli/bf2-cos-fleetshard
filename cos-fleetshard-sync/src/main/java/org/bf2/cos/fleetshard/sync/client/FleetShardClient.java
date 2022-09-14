@@ -1,5 +1,6 @@
 package org.bf2.cos.fleetshard.sync.client;
 
+import java.net.HttpURLConnection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -25,8 +26,14 @@ import org.bf2.cos.fleetshard.sync.FleetShardSyncConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.DeletionPropagation;
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.dsl.base.PatchContext;
+import io.fabric8.kubernetes.client.dsl.base.PatchType;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import io.fabric8.kubernetes.client.informers.cache.Cache;
@@ -148,8 +155,23 @@ public class FleetShardClient implements Service {
     }
 
     public Namespace createNamespace(Namespace namespace) {
+        String rv = namespace.getMetadata().getResourceVersion();
+
+        try {
+            namespace.getMetadata().setResourceVersion(null);
+
+            return this.kubernetesClient.namespaces().withName(namespace.getMetadata().getName()).create(namespace);
+        } catch (KubernetesClientException e) {
+            if (e.getCode() != HttpURLConnection.HTTP_CONFLICT) {
+                throw e;
+            }
+        } finally {
+            namespace.getMetadata().setResourceVersion(rv);
+        }
+
         return this.kubernetesClient.namespaces()
-            .createOrReplace(namespace);
+            .withName(namespace.getMetadata().getName())
+            .patch(PatchContext.of(PatchType.JSON_MERGE), namespace);
     }
 
     // *************************************
@@ -159,10 +181,27 @@ public class FleetShardClient implements Service {
     // *************************************
 
     public Secret createSecret(Secret secret) {
+        String rv = secret.getMetadata().getResourceVersion();
+
+        try {
+            secret.getMetadata().setResourceVersion(null);
+
+            return this.kubernetesClient.secrets()
+                .inNamespace(secret.getMetadata().getNamespace())
+                .withName(secret.getMetadata().getName())
+                .create(secret);
+        } catch (KubernetesClientException e) {
+            if (e.getCode() != HttpURLConnection.HTTP_CONFLICT) {
+                throw e;
+            }
+        } finally {
+            secret.getMetadata().setResourceVersion(rv);
+        }
+
         return this.kubernetesClient.secrets()
             .inNamespace(secret.getMetadata().getNamespace())
             .withName(secret.getMetadata().getName())
-            .createOrReplace(secret);
+            .patch(PatchContext.of(PatchType.JSON_MERGE), secret);
     }
 
     public Optional<Secret> getSecret(ConnectorDeployment deployment) {
@@ -266,10 +305,27 @@ public class FleetShardClient implements Service {
     }
 
     public ManagedConnector createConnector(ManagedConnector connector) {
+        String rv = connector.getMetadata().getResourceVersion();
+
+        try {
+            connector.getMetadata().setResourceVersion(null);
+
+            return this.kubernetesClient.resources(ManagedConnector.class)
+                .inNamespace(connector.getMetadata().getNamespace())
+                .withName(connector.getMetadata().getName())
+                .create(connector);
+        } catch (KubernetesClientException e) {
+            if (e.getCode() != HttpURLConnection.HTTP_CONFLICT) {
+                throw e;
+            }
+        } finally {
+            connector.getMetadata().setResourceVersion(rv);
+        }
+
         return kubernetesClient.resources(ManagedConnector.class)
             .inNamespace(connector.getMetadata().getNamespace())
             .withName(connector.getMetadata().getName())
-            .createOrReplace(connector);
+            .patch(PatchContext.of(PatchType.JSON_MERGE), connector);
     }
 
     public String generateConnectorId(String namespaceId) {
