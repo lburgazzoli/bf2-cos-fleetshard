@@ -30,6 +30,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.fabric8.kubernetes.api.model.Condition;
+import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.utils.Serialization;
 
@@ -376,6 +378,14 @@ public final class CamelOperandSupport {
                 .get());
     }
 
+    public static Optional<Deployment> lookupDeployment(KubernetesClient client, ManagedConnector connector) {
+        return Optional.ofNullable(
+            client.resources(Deployment.class)
+                .inNamespace(connector.getMetadata().getNamespace())
+                .withName(connector.getMetadata().getName())
+                .get());
+    }
+
     public static void computeStatus(ConnectorStatusSpec statusSpec, KameletBindingStatus kameletBindingStatus) {
         if (kameletBindingStatus.phase != null) {
             switch (kameletBindingStatus.phase.toLowerCase(Locale.US)) {
@@ -410,6 +420,20 @@ public final class CamelOperandSupport {
             }
 
             statusSpec.setConditions(kameletBindingStatus.conditions);
+        }
+    }
+
+    public static void computeStatus(ConnectorStatusSpec statusSpec, DeploymentStatus deploymentStatus) {
+        if (deploymentStatus == null) {
+            return;
+        }
+
+        if (deploymentStatus.getConditions() != null) {
+            for (var condition : deploymentStatus.getConditions()) {
+                if (condition.getType().equals("Available") && condition.getStatus().equals("True")) {
+                    statusSpec.setPhase(ManagedConnector.STATE_READY);
+                }
+            }
         }
     }
 

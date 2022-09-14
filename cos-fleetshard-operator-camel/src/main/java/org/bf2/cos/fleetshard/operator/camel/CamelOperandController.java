@@ -62,6 +62,7 @@ import static org.bf2.cos.fleetshard.operator.camel.CamelOperandSupport.createSe
 import static org.bf2.cos.fleetshard.operator.camel.CamelOperandSupport.createSteps;
 import static org.bf2.cos.fleetshard.operator.camel.CamelOperandSupport.hasSchemaRegistry;
 import static org.bf2.cos.fleetshard.operator.camel.CamelOperandSupport.lookupBinding;
+import static org.bf2.cos.fleetshard.operator.camel.CamelOperandSupport.lookupDeployment;
 import static org.bf2.cos.fleetshard.support.CollectionUtils.asBytesBase64;
 
 @Singleton
@@ -297,6 +298,10 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
     public void status(ManagedConnector connector) {
         lookupBinding(getKubernetesClient(), connector).ifPresent(
             klb -> computeStatus(connector.getStatus().getConnectorStatus(), klb.getStatus()));
+
+        // TODO: workaround for pod -> deployment -> it -> klb status propagation on KCP
+        lookupDeployment(getKubernetesClient(), connector).ifPresent(
+            deployment -> computeStatus(connector.getStatus().getConnectorStatus(), deployment.getStatus()));
     }
 
     @Override
