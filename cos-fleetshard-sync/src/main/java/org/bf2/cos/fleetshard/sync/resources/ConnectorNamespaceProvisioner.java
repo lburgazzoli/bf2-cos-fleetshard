@@ -21,6 +21,8 @@ import org.bf2.cos.fleetshard.support.resources.Resources;
 import org.bf2.cos.fleetshard.sync.FleetShardSyncConfig;
 import org.bf2.cos.fleetshard.sync.client.FleetManagerClient;
 import org.bf2.cos.fleetshard.sync.client.FleetShardClient;
+import org.bf2.cos.fleetshard.sync.resources.model.IntegrationPlatform;
+import org.bf2.cos.fleetshard.sync.resources.model.IntegrationPlatformBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ import io.fabric8.kubernetes.api.model.LimitRangeItem;
 import io.fabric8.kubernetes.api.model.LimitRangeSpec;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.api.model.ResourceQuota;
 import io.fabric8.kubernetes.api.model.ResourceQuotaSpec;
@@ -283,6 +286,21 @@ public class ConnectorNamespaceProvisioner {
             .createOrReplace(limits);
     }
 
+    private void createIntegrationPlatform(String uow, ConnectorNamespaceDeployment connectorNamespace) {
+        IntegrationPlatform ip = new IntegrationPlatformBuilder()
+            .withMetadata(new ObjectMetaBuilder()
+                .withNamespace(fleetShard.generateNamespaceId(connectorNamespace.getId()))
+                .withName("camel-k")
+                .build())
+            .build();
+
+        Resources.setLabels(
+            ip,
+            Resources.LABEL_UOW, uow);
+
+        Resources.createOrPatch(fleetShard.getKubernetesClient(), ip);
+    }
+
     public void provision(ConnectorNamespaceDeployment connectorNamespace) {
         LOGGER.info("Got cluster_id: {}, namespace_d: {}, state: {}, connectors_deployed: {}",
             fleetShard.getClusterId(),
@@ -351,6 +369,7 @@ public class ConnectorNamespaceProvisioner {
         }
 
         copyAddonPullSecret(uow, ns);
+        createIntegrationPlatform(uow, connectorNamespace);
     }
 
     private boolean hasQuota(ConnectorNamespaceDeployment connectorNamespace) {
