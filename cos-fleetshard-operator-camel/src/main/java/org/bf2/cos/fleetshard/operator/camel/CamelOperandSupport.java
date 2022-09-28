@@ -355,7 +355,6 @@ public final class CamelOperandSupport {
         Map<String, String> envVars) {
 
         ObjectNode integration = Serialization.jsonMapper().createObjectNode();
-        integration.put("profile", CamelConstants.CAMEL_K_PROFILE_OPENSHIFT);
         ArrayNode configuration = integration.withArray("configuration");
 
         configuration.addObject()

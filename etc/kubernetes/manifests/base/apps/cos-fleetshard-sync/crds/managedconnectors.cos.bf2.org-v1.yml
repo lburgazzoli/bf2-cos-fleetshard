@@ -58,6 +58,15 @@ spec:
                       url:
                         type: string
                     type: object
+                  knative:
+                    properties:
+                      apiVersion:
+                        type: string
+                      kind:
+                        type: string
+                      name:
+                        type: string
+                    type: object
                   schemaRegistry:
                     properties:
                       id:
@@ -156,6 +165,15 @@ spec:
                       id:
                         type: string
                       url:
+                        type: string
+                    type: object
+                  knative:
+                    properties:
+                      apiVersion:
+                        type: string
+                      kind:
+                        type: string
+                      name:
                         type: string
                     type: object
                   schemaRegistry:

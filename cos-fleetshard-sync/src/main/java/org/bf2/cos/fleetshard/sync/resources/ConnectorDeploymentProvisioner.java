@@ -8,10 +8,12 @@ import javax.enterprise.context.ApplicationScoped;
 import org.bf2.cos.fleet.manager.model.ConnectorDeployment;
 import org.bf2.cos.fleet.manager.model.ConnectorDeploymentStatus;
 import org.bf2.cos.fleet.manager.model.KafkaConnectionSettings;
+import org.bf2.cos.fleet.manager.model.KnativeConnectionSettings;
 import org.bf2.cos.fleet.manager.model.MetaV1Condition;
 import org.bf2.cos.fleet.manager.model.SchemaRegistryConnectionSettings;
 import org.bf2.cos.fleetshard.api.Conditions;
 import org.bf2.cos.fleetshard.api.KafkaSpec;
+import org.bf2.cos.fleetshard.api.KnativeSpec;
 import org.bf2.cos.fleetshard.api.ManagedConnector;
 import org.bf2.cos.fleetshard.api.Operator;
 import org.bf2.cos.fleetshard.api.OperatorSelector;
@@ -252,14 +254,22 @@ public class ConnectorDeploymentProvisioner {
         connector.getSpec().getDeployment().setConnectorResourceVersion(deployment.getSpec().getConnectorResourceVersion());
 
         KafkaConnectionSettings kafkaConnectionSettings = deployment.getSpec().getKafka();
-        if (kafkaConnectionSettings != null) {
+        if (kafkaConnectionSettings != null && kafkaConnectionSettings.getUrl() != null) {
             connector.getSpec().getDeployment().setKafka(new KafkaSpec(
                 kafkaConnectionSettings.getId(),
                 kafkaConnectionSettings.getUrl()));
         }
 
+        KnativeConnectionSettings knativeConnectionSettings = deployment.getSpec().getKnative();
+        if (knativeConnectionSettings != null && knativeConnectionSettings.getKind() != null) {
+            connector.getSpec().getDeployment().setKnative(new KnativeSpec(
+                knativeConnectionSettings.getApiVersion(),
+                knativeConnectionSettings.getKind(),
+                knativeConnectionSettings.getName()));
+        }
+
         SchemaRegistryConnectionSettings schemaRegistryConnectionSettings = deployment.getSpec().getSchemaRegistry();
-        if (schemaRegistryConnectionSettings != null) {
+        if (schemaRegistryConnectionSettings != null && schemaRegistryConnectionSettings.getId() != null) {
             connector.getSpec().getDeployment().setSchemaRegistry(new SchemaRegistrySpec(
                 schemaRegistryConnectionSettings.getId(),
                 schemaRegistryConnectionSettings.getUrl()));

@@ -6,6 +6,7 @@ import java.util.TreeMap;
 
 import javax.inject.Singleton;
 
+import org.bf2.cos.fleetshard.api.DeploymentSpec;
 import org.bf2.cos.fleetshard.api.ManagedConnector;
 import org.bf2.cos.fleetshard.api.Operator;
 import org.bf2.cos.fleetshard.api.ServiceAccountSpec;
@@ -99,6 +100,8 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
             connector,
             connectorConfiguration.getErrorHandlerSpec());
 
+        final DeploymentSpec ds = connector.getSpec().getDeployment();
+
         final List<KameletEndpoint> stepDefinitions;
         final KameletEndpoint source;
         final KameletEndpoint sink;
@@ -126,6 +129,7 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
         //
         switch (shardMetadata.getConnectorType()) {
             case CONNECTOR_TYPE_SOURCE:
+
                 source = KameletEndpoint.kamelet(shardMetadata.getKamelets().getAdapter().getName());
                 source.getProperties().put("id", connector.getSpec().getDeploymentId() + "-source");
 
@@ -134,21 +138,31 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
                     connectorConfiguration.getConnectorSpec(),
                     shardMetadata.getKamelets().getAdapter());
 
-                sink = KameletEndpoint.kamelet(shardMetadata.getKamelets().getKafka().getName());
-                sink.getProperties().put("id", connector.getSpec().getDeploymentId() + "-sink");
-                sink.getProperties().put("bootstrapServers", connector.getSpec().getDeployment().getKafka().getUrl());
-                sink.getProperties().put("user", SA_CLIENT_ID_PLACEHOLDER);
-                sink.getProperties().put("password", SA_CLIENT_SECRET_PLACEHOLDER);
+                if (ds.getKafka() != null && ds.getKafka().getUrl() != null) {
+                    sink = KameletEndpoint.kamelet(shardMetadata.getKamelets().getKafka().getName());
+                    sink.getProperties().put("id", connector.getSpec().getDeploymentId() + "-sink");
+                    sink.getProperties().put("bootstrapServers", connector.getSpec().getDeployment().getKafka().getUrl());
+                    sink.getProperties().put("user", SA_CLIENT_ID_PLACEHOLDER);
+                    sink.getProperties().put("password", SA_CLIENT_SECRET_PLACEHOLDER);
 
-                configureKameletProperties(
-                    sink.getProperties(),
-                    connectorConfiguration.getConnectorSpec(),
-                    shardMetadata.getKamelets().getKafka());
+                    configureKameletProperties(
+                        sink.getProperties(),
+                        connectorConfiguration.getConnectorSpec(),
+                        shardMetadata.getKamelets().getKafka());
 
-                if (hasSchemaRegistry(connector)) {
-                    sink.getProperties().put(
-                        "registryUrl",
-                        connector.getSpec().getDeployment().getSchemaRegistry().getUrl());
+                    if (hasSchemaRegistry(connector)) {
+                        sink.getProperties().put(
+                            "registryUrl",
+                            connector.getSpec().getDeployment().getSchemaRegistry().getUrl());
+                    }
+                } else if (ds.getKnative() != null && ds.getKnative().getApiVersion() != null) {
+                    sink = new KameletEndpoint(
+                        ds.getKnative().getApiVersion(),
+                        ds.getKnative().getKind(),
+                        ds.getKnative().getName());
+                } else {
+                    throw new IllegalArgumentException(
+                        "Unknown sink type (kafka= " + ds.getKnative() + ", knative=" + ds.getKnative() + ")");
                 }
 
                 stepDefinitions = createSteps(
@@ -158,22 +172,32 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
                     sink);
                 break;
             case CONNECTOR_TYPE_SINK:
-                source = KameletEndpoint.kamelet(shardMetadata.getKamelets().getKafka().getName());
-                source.getProperties().put("id", connector.getSpec().getDeploymentId() + "-source");
-                source.getProperties().put("consumerGroup", connector.getSpec().getDeploymentId());
-                source.getProperties().put("bootstrapServers", connector.getSpec().getDeployment().getKafka().getUrl());
-                source.getProperties().put("user", SA_CLIENT_ID_PLACEHOLDER);
-                source.getProperties().put("password", SA_CLIENT_SECRET_PLACEHOLDER);
+                if (ds.getKafka() != null && ds.getKafka().getUrl() != null) {
+                    source = KameletEndpoint.kamelet(shardMetadata.getKamelets().getKafka().getName());
+                    source.getProperties().put("id", connector.getSpec().getDeploymentId() + "-source");
+                    source.getProperties().put("consumerGroup", connector.getSpec().getDeploymentId());
+                    source.getProperties().put("bootstrapServers", connector.getSpec().getDeployment().getKafka().getUrl());
+                    source.getProperties().put("user", SA_CLIENT_ID_PLACEHOLDER);
+                    source.getProperties().put("password", SA_CLIENT_SECRET_PLACEHOLDER);
 
-                configureKameletProperties(
-                    source.getProperties(),
-                    connectorConfiguration.getConnectorSpec(),
-                    shardMetadata.getKamelets().getKafka());
+                    configureKameletProperties(
+                        source.getProperties(),
+                        connectorConfiguration.getConnectorSpec(),
+                        shardMetadata.getKamelets().getKafka());
 
-                if (hasSchemaRegistry(connector)) {
-                    source.getProperties().put(
-                        "registryUrl",
-                        connector.getSpec().getDeployment().getSchemaRegistry().getUrl());
+                    if (hasSchemaRegistry(connector)) {
+                        source.getProperties().put(
+                            "registryUrl",
+                            connector.getSpec().getDeployment().getSchemaRegistry().getUrl());
+                    }
+                } else if (ds.getKnative() != null && ds.getKnative().getApiVersion() != null) {
+                    source = new KameletEndpoint(
+                        ds.getKnative().getApiVersion(),
+                        ds.getKnative().getKind(),
+                        ds.getKnative().getName());
+                } else {
+                    throw new IllegalArgumentException(
+                        "Unknown source type (kafka= " + ds.getKnative() + ", knative=" + ds.getKnative() + ")");
                 }
 
                 sink = KameletEndpoint.kamelet(shardMetadata.getKamelets().getAdapter().getName());
@@ -287,6 +311,12 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
                 "CONNECTOR_ID", connector.getSpec().getConnectorId(),
                 "CONNECTOR_DEPLOYMENT_ID", connector.getSpec().getDeploymentId(),
                 "CONNECTOR_TRAITS_CHECKSUM", Resources.computeTraitsChecksum(binding)));
+
+        if (ds.getKafka() != null && ds.getKafka().getUrl() != null) {
+            integration.put("profile", CamelConstants.CAMEL_K_PROFILE_OPENSHIFT);
+        } else if (ds.getKnative() != null && ds.getKnative().getApiVersion() != null) {
+            integration.put("profile", CamelConstants.CAMEL_K_PROFILE_KNATIVE);
+        }
 
         binding.getSpec().setIntegration(integration);
 

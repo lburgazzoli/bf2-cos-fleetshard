@@ -26,6 +26,7 @@ public class DeploymentSpec {
     private Long connectorResourceVersion;
     private Long deploymentResourceVersion;
     private KafkaSpec kafka;
+    private KnativeSpec knative;
     private SchemaRegistrySpec schemaRegistry;
     private String desiredState;
     private String secret;
@@ -69,6 +70,14 @@ public class DeploymentSpec {
     @JsonProperty
     public void setKafka(KafkaSpec kafka) {
         this.kafka = kafka;
+    }
+
+    public KnativeSpec getKnative() {
+        return knative;
+    }
+
+    public void setKnative(KnativeSpec knative) {
+        this.knative = knative;
     }
 
     @JsonProperty
