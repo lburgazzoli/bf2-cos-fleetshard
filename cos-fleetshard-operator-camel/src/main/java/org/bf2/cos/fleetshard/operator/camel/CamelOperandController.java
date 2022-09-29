@@ -6,6 +6,7 @@ import java.util.TreeMap;
 
 import javax.inject.Singleton;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bf2.cos.fleetshard.api.DeploymentSpec;
 import org.bf2.cos.fleetshard.api.ManagedConnector;
 import org.bf2.cos.fleetshard.api.Operator;
@@ -138,7 +139,7 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
                     connectorConfiguration.getConnectorSpec(),
                     shardMetadata.getKamelets().getAdapter());
 
-                if (ds.getKafka() != null && ds.getKafka().getUrl() != null) {
+                if (ds.getKafka() != null && StringUtils.isNotEmpty(ds.getKafka().getUrl())) {
                     sink = KameletEndpoint.kamelet(shardMetadata.getKamelets().getKafka().getName());
                     sink.getProperties().put("id", connector.getSpec().getDeploymentId() + "-sink");
                     sink.getProperties().put("bootstrapServers", connector.getSpec().getDeployment().getKafka().getUrl());
@@ -155,7 +156,7 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
                             "registryUrl",
                             connector.getSpec().getDeployment().getSchemaRegistry().getUrl());
                     }
-                } else if (ds.getKnative() != null && ds.getKnative().getApiVersion() != null) {
+                } else if (ds.getKnative() != null && StringUtils.isNotEmpty(ds.getKnative().getApiVersion())) {
                     sink = new KameletEndpoint(
                         ds.getKnative().getApiVersion(),
                         ds.getKnative().getKind(),
@@ -172,7 +173,8 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
                     sink);
                 break;
             case CONNECTOR_TYPE_SINK:
-                if (ds.getKafka() != null && ds.getKafka().getUrl() != null) {
+
+                if (ds.getKafka() != null && StringUtils.isNotEmpty(ds.getKafka().getUrl())) {
                     source = KameletEndpoint.kamelet(shardMetadata.getKamelets().getKafka().getName());
                     source.getProperties().put("id", connector.getSpec().getDeploymentId() + "-source");
                     source.getProperties().put("consumerGroup", connector.getSpec().getDeploymentId());
@@ -190,7 +192,7 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
                             "registryUrl",
                             connector.getSpec().getDeployment().getSchemaRegistry().getUrl());
                     }
-                } else if (ds.getKnative() != null && ds.getKnative().getApiVersion() != null) {
+                } else if (ds.getKnative() != null && StringUtils.isNotEmpty(ds.getKnative().getApiVersion())) {
                     source = new KameletEndpoint(
                         ds.getKnative().getApiVersion(),
                         ds.getKnative().getKind(),
@@ -312,7 +314,7 @@ public class CamelOperandController extends AbstractOperandController<CamelShard
                 "CONNECTOR_DEPLOYMENT_ID", connector.getSpec().getDeploymentId(),
                 "CONNECTOR_TRAITS_CHECKSUM", Resources.computeTraitsChecksum(binding)));
 
-        if (ds.getKafka() != null && ds.getKafka().getUrl() != null) {
+        if (ds.getKafka() != null && StringUtils.isNotEmpty(ds.getKafka().getUrl())) {
             integration.put("profile", CamelConstants.CAMEL_K_PROFILE_OPENSHIFT);
         } else if (ds.getKnative() != null && ds.getKnative().getApiVersion() != null) {
             integration.put("profile", CamelConstants.CAMEL_K_PROFILE_KNATIVE);

@@ -20,6 +20,7 @@ import org.bf2.cos.fleetshard.api.OperatorSelector;
 import org.bf2.cos.fleetshard.api.SchemaRegistrySpec;
 import org.bf2.cos.fleetshard.support.OperatorSelectorUtil;
 import org.bf2.cos.fleetshard.support.client.EventClient;
+import org.bf2.cos.fleetshard.support.json.JacksonUtil;
 import org.bf2.cos.fleetshard.support.metrics.MetricsRecorder;
 import org.bf2.cos.fleetshard.support.resources.Connectors;
 import org.bf2.cos.fleetshard.support.resources.Resources;
@@ -136,6 +137,8 @@ public class ConnectorDeploymentProvisioner {
             deployment.getId(),
             deployment.getMetadata().getResourceVersion(),
             uow);
+
+        LOGGER.info("{}", JacksonUtil.asPrettyPrintedJson(deployment));
 
         final ManagedConnector connector = createManagedConnector(uow, deployment, null);
         final Secret secret = createManagedConnectorSecret(uow, deployment, connector);

@@ -253,30 +253,33 @@ public final class CamelOperandSupport {
             }
         }
 
-        // If it is a sink, then it consumes from kafka
-        if (isSink(shardMetadata)) {
-            String valueDeserializer = "org.bf2.cos.connector.camel.serdes.bytes.ByteArrayDeserializer";
+        var ds = connector.getSpec().getDeployment();
+        if (ds.getKafka() != null && StringUtils.isNotEmpty(ds.getKafka().getUrl())) {
+            // If it is a sink, then it consumes from kafka
+            if (isSink(shardMetadata)) {
+                String valueDeserializer = "org.bf2.cos.connector.camel.serdes.bytes.ByteArrayDeserializer";
 
-            if ("application/json".equals(consumes) && hasSchemaRegistry(connector)) {
-                valueDeserializer = "org.bf2.cos.connector.camel.serdes.json.JsonDeserializer";
-            } else if ("avro/binary".equals(produces) && hasSchemaRegistry(connector)) {
-                valueDeserializer = "org.bf2.cos.connector.camel.serdes.avro.AvroDeserializer";
+                if ("application/json".equals(consumes) && hasSchemaRegistry(connector)) {
+                    valueDeserializer = "org.bf2.cos.connector.camel.serdes.json.JsonDeserializer";
+                } else if ("avro/binary".equals(produces) && hasSchemaRegistry(connector)) {
+                    valueDeserializer = "org.bf2.cos.connector.camel.serdes.avro.AvroDeserializer";
+                }
+
+                kafkaEndpoint.getProperties().put("valueDeserializer", valueDeserializer);
             }
 
-            kafkaEndpoint.getProperties().put("valueDeserializer", valueDeserializer);
-        }
+            // If it is a source, then it produces to kafka
+            if (isSource(shardMetadata)) {
+                String valueSerializer = "org.bf2.cos.connector.camel.serdes.bytes.ByteArraySerializer";
 
-        // If it is a source, then it produces to kafka
-        if (isSource(shardMetadata)) {
-            String valueSerializer = "org.bf2.cos.connector.camel.serdes.bytes.ByteArraySerializer";
+                if ("application/json".equals(produces) && hasSchemaRegistry(connector)) {
+                    valueSerializer = "org.bf2.cos.connector.camel.serdes.json.JsonSerializer";
+                } else if ("avro/binary".equals(produces) && hasSchemaRegistry(connector)) {
+                    valueSerializer = "org.bf2.cos.connector.camel.serdes.avro.AvroSerializer";
+                }
 
-            if ("application/json".equals(produces) && hasSchemaRegistry(connector)) {
-                valueSerializer = "org.bf2.cos.connector.camel.serdes.json.JsonSerializer";
-            } else if ("avro/binary".equals(produces) && hasSchemaRegistry(connector)) {
-                valueSerializer = "org.bf2.cos.connector.camel.serdes.avro.AvroSerializer";
+                kafkaEndpoint.getProperties().put("valueSerializer", valueSerializer);
             }
-
-            kafkaEndpoint.getProperties().put("valueSerializer", valueSerializer);
         }
 
         return stepDefinitions;
