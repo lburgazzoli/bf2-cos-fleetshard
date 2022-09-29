@@ -15,10 +15,10 @@ patchesStrategicMerge:
 - patches/delete-camel-k-edit.yaml
 - patches/delete-camel-k-clusterrole-console.yaml
 - patches/delete-camel-k-clusterrole-console-binding.yaml
-- patches/delete-camel-k-role-knative.yaml
+#- patches/delete-camel-k-role-knative.yaml
 - patches/delete-camel-k-role-keda.yaml
 - patches/delete-camel-k-role-strimzi.yaml
-- patches/delete-camel-k-rolebinding-knative.yaml
+#- patches/delete-camel-k-rolebinding-knative.yaml
 - patches/delete-camel-k-rolebinding-keda.yaml
 - patches/delete-camel-k-rolebinding-strimzi.yaml
 - patches/patch-camel-k-deployment.yaml
