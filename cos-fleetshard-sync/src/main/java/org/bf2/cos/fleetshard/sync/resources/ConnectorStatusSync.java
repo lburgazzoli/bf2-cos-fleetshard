@@ -76,13 +76,13 @@ public class ConnectorStatusSync implements Service {
 
         scheduler.schedule(
             JOB_ID,
-            ConnectorStatusSyncJob.class,
+            this::run,
             config.resources().updateInterval());
     }
 
     @Override
     public void stop() {
-        scheduler.shutdownQuietly(JOB_ID);
+        scheduler.shutdown(JOB_ID);
     }
 
     public void run() {

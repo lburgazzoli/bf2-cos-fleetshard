@@ -51,13 +51,13 @@ public class ConnectorClusterStatusSync implements Service {
 
         scheduler.schedule(
             JOB_ID,
-            ConnectorClusterStatusSyncJob.class,
+            this::run,
             config.resources().updateInterval());
     }
 
     @Override
     public void stop() throws Exception {
-        scheduler.shutdownQuietly(JOB_ID);
+        scheduler.shutdown(JOB_ID);
     }
 
     public void run() {

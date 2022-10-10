@@ -17,7 +17,7 @@ import org.eclipse.microprofile.faulttolerance.Retry;
 import io.micrometer.core.instrument.MeterRegistry;
 
 @ApplicationScoped
-public class ResourcePoll implements Service {
+public class ResourcePoll implements Service, Runnable {
     private static final String JOB_ID = "cos.resources.poll";
     private static final long BEGINNING = 0;
     public static final String METRICS_SYNC = "connectors.sync";
@@ -47,13 +47,13 @@ public class ResourcePoll implements Service {
 
         scheduler.schedule(
             JOB_ID,
-            ResourcePollJob.class,
+            this::run,
             config.resources().pollInterval());
     }
 
     @Override
     public void stop() throws Exception {
-        scheduler.shutdownQuietly(JOB_ID);
+        scheduler.shutdown(JOB_ID);
     }
 
     @Retry(maxRetries = 10, delay = 1, delayUnit = ChronoUnit.SECONDS)

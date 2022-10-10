@@ -51,13 +51,13 @@ public class Housekeeper implements Service {
 
         scheduler.schedule(
             JOB_ID,
-            HousekeeperJob.class,
+            this::run,
             config.resources().housekeeperInterval());
     }
 
     @Override
     public void stop() throws Exception {
-        scheduler.shutdownQuietly(JOB_ID);
+        scheduler.shutdown(JOB_ID);
 
         for (Task task : tasks) {
             if (task instanceof Service) {

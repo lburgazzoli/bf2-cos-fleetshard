@@ -1,18 +1,17 @@
 package org.bf2.cos.fleetshard.sync;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleScheduleBuilder;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,41 +19,53 @@ import org.slf4j.LoggerFactory;
 public class FleetShardSyncScheduler {
     private static final Logger LOGGER = LoggerFactory.getLogger(FleetShardSyncScheduler.class);
 
-    @Inject
-    org.quartz.Scheduler quartz;
+    private Map<String, ScheduledFuture<?>> futures;
+    private ScheduledExecutorService executor;
 
-    public void schedule(String id, Class<? extends Job> jobType, Duration interval) throws SchedulerException {
+    @PostConstruct
+    void setUp() {
+        futures = new ConcurrentHashMap<>();
+        executor = Executors.newScheduledThreadPool(1);
+    }
+
+    @PreDestroy
+    void cleanUp() {
+        if (executor != null) {
+            executor.shutdownNow();
+            executor = null;
+        }
+        if (futures != null) {
+            futures = null;
+        }
+    }
+
+    public void schedule(String id, Runnable runnable, Duration interval) {
         if (interval.isZero()) {
-            LOGGER.info("Skipping scheduling job of type {} with id {} as the duration is zero", id, jobType);
+            LOGGER.info("Skipping scheduling job of type {} with id {} as the duration is zero", id,
+                runnable.getClass().getName());
             return;
         }
 
-        final JobDetail job = JobBuilder.newJob(jobType)
-            .withIdentity(id + ".job", id)
-            .build();
+        var old = futures.put(id, executor.scheduleWithFixedDelay(
+            runnable,
+            0,
+            interval.toMillis(),
+            TimeUnit.MILLISECONDS));
 
-        final Trigger trigger = TriggerBuilder.newTrigger()
-            .withIdentity(id + ".trigger", id)
-            .startNow()
-            .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                .withIntervalInMilliseconds(interval.toMillis())
-                .repeatForever())
-            .build();
-
-        quartz.scheduleJob(
-            job,
-            trigger);
+        if (old != null) {
+            old.cancel(true);
+        }
     }
 
-    public void shutdown(String id) throws SchedulerException {
-        quartz.deleteJob(JobKey.jobKey(id + ".job", id));
-    }
+    public void shutdown(String id) {
+        ScheduledFuture<?> future = futures.get(id);
 
-    public void shutdownQuietly(String id) {
-        try {
-            shutdown(id);
-        } catch (SchedulerException e) {
-            LOGGER.debug("Error deleting job {}", id, e);
+        if (future != null) {
+            try {
+                future.cancel(true);
+            } catch (Exception e) {
+                LOGGER.debug("Failure stopping task", e);
+            }
         }
     }
 }
