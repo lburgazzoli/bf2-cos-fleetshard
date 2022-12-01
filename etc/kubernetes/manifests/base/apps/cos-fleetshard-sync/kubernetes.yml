@@ -412,10 +412,10 @@ spec:
               fieldPath: "metadata.namespace"
         - name: "SMALLRYE_CONFIG_LOCATIONS"
           value: "/mnt/app-config/configuration"
-        - name: "SMALLRYE_CONFIG_SOURCE_FILE_LOCATIONS"
-          value: "/mnt/app-secret"
         - name: "OVERRIDE_PROPERTIES_LOCATION"
           value: "/mnt/app-config/override/override.properties"
+        - name: "SMALLRYE_CONFIG_SOURCE_FILE_LOCATIONS"
+          value: "/mnt/app-secret"
         image: "quay.io/rhoas/cos-fleetshard-sync:latest"
         imagePullPolicy: "Always"
         livenessProbe:
