@@ -1,0 +1,24 @@
+
+resources:
+  - ../../../base/apps/cos-fleetshard-operator-camel
+
+patchesJson6902:
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: cos-fleetshard-operator-camel
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: COS_OPERATOR_ID
+          value: "cos-fleetshard-operator-camel"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: COS_OPERATOR_VERSION
+          value: "1.5.0"
+      - op: replace
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: "Always"
