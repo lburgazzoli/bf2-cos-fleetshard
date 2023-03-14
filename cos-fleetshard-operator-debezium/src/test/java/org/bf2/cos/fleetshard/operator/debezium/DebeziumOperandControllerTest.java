@@ -19,6 +19,10 @@ import org.bf2.cos.fleetshard.operator.FleetShardOperatorConfig;
 import org.bf2.cos.fleetshard.operator.connector.ConnectorConfiguration;
 import org.bf2.cos.fleetshard.operator.debezium.model.ApicurioAvroConverter;
 import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumDataShape;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnect;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnectBuilder;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnector;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnectorBuilder;
 import org.bf2.cos.fleetshard.operator.debezium.model.KafkaConnectJsonConverter;
 import org.bf2.cos.fleetshard.operator.debezium.model.KafkaConnectorStatus;
 import org.bf2.cos.fleetshard.operator.debezium.model.KeyAndValueConverters;
@@ -39,9 +43,7 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 import io.strimzi.api.kafka.model.Constants;
 import io.strimzi.api.kafka.model.JmxPrometheusExporterMetrics;
 import io.strimzi.api.kafka.model.KafkaConnect;
-import io.strimzi.api.kafka.model.KafkaConnectBuilder;
 import io.strimzi.api.kafka.model.KafkaConnector;
-import io.strimzi.api.kafka.model.KafkaConnectorBuilder;
 import io.strimzi.api.kafka.model.status.Condition;
 import io.strimzi.api.kafka.model.status.ConditionBuilder;
 import io.strimzi.api.kafka.model.status.KafkaConnectStatusBuilder;
@@ -174,7 +176,7 @@ public class DebeziumOperandControllerTest {
         return baseConfig;
     }
 
-    void reify(String connectorClass, ObjectNode connectorConfig, Consumer<KafkaConnect> kafkaConnectChecks) {
+    void reify(String connectorClass, ObjectNode connectorConfig, Consumer<DebeziumKafkaConnect> kafkaConnectChecks) {
         FleetShardOperatorConfig config = fleetShardOperatorConfig();
         KubernetesClient kubernetesClient = Mockito.mock(KubernetesClient.class);
         DebeziumOperandController controller = new DebeziumOperandController(config, kubernetesClient, CONFIGURATION);
@@ -223,7 +225,7 @@ public class DebeziumOperandControllerTest {
             .filteredOn(DebeziumOperandSupport::isKafkaConnect)
             .hasSize(1)
             .first()
-            .isInstanceOfSatisfying(KafkaConnect.class, kc -> {
+            .isInstanceOfSatisfying(DebeziumKafkaConnect.class, kc -> {
                 assertThat(kc.getSpec().getImage()).isEqualTo(DEFAULT_CONNECTOR_IMAGE);
                 assertThat(kc.getSpec().getTemplate().getPod().getImagePullSecrets())
                     .contains(CONFIGURATION.imagePullSecretsName());
@@ -262,7 +264,7 @@ public class DebeziumOperandControllerTest {
             .filteredOn(DebeziumOperandSupport::isKafkaConnector)
             .hasSize(1)
             .first()
-            .isInstanceOfSatisfying(KafkaConnector.class, kctr -> {
+            .isInstanceOfSatisfying(DebeziumKafkaConnector.class, kctr -> {
                 assertThat(
                     kctr.getSpec().getConfig()).containsEntry(
                         "database.password",
@@ -310,7 +312,7 @@ public class DebeziumOperandControllerTest {
             .filteredOn(DebeziumOperandSupport::isKafkaConnect)
             .hasSize(1)
             .first()
-            .isInstanceOfSatisfying(KafkaConnect.class, kafkaConnectChecks);
+            .isInstanceOfSatisfying(DebeziumKafkaConnect.class, kafkaConnectChecks);
     }
 
     @Test
@@ -340,7 +342,7 @@ public class DebeziumOperandControllerTest {
             });
     }
 
-    private Consumer<KafkaConnect> getApicurioChecks(String converterClass) {
+    private Consumer<DebeziumKafkaConnect> getApicurioChecks(String converterClass) {
         return kafkaConnect -> {
             assertThat(kafkaConnect.getSpec().getConfig()).containsEntry(KeyAndValueConverters.PROPERTY_KEY_CONVERTER,
                 converterClass);
@@ -524,12 +526,12 @@ public class DebeziumOperandControllerTest {
 
         DebeziumOperandSupport.computeStatus(
             status,
-            new KafkaConnectBuilder()
+            new DebeziumKafkaConnectBuilder()
                 .withStatus(new KafkaConnectStatusBuilder()
                     .addAllToConditions(connectConditions)
                     .build())
                 .build(),
-            new KafkaConnectorBuilder()
+            new DebeziumKafkaConnectorBuilder()
                 .withStatus(new KafkaConnectorStatusBuilder()
                     .addAllToConditions(connectorConditions)
                     .addToConnectorStatus("connector",

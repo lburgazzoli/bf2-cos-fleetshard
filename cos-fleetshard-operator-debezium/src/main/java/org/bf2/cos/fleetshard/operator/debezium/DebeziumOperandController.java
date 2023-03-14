@@ -41,7 +41,6 @@ import io.fabric8.kubernetes.api.model.SecretVolumeSourceBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext;
 import io.strimzi.api.kafka.model.ClientTlsBuilder;
-import io.strimzi.api.kafka.model.Constants;
 import io.strimzi.api.kafka.model.ExternalConfigurationReferenceBuilder;
 import io.strimzi.api.kafka.model.InlineLoggingBuilder;
 import io.strimzi.api.kafka.model.JmxPrometheusExporterMetricsBuilder;
@@ -239,7 +238,7 @@ public class DebeziumOperandController extends AbstractOperandController<Debeziu
         kcsb.withImage(shardMetadata.getContainerImage());
 
         final DebeziumKafkaConnect kc = new DebeziumKafkaConnectBuilder()
-            .withApiVersion(Constants.RESOURCE_GROUP_NAME + "/" + KafkaConnect.CONSUMED_VERSION)
+            .withApiVersion(DebeziumConstants.RESOURCE_GROUP_NAME + "/" + KafkaConnect.CONSUMED_VERSION)
             .withMetadata(new ObjectMetaBuilder()
                 .withName(connector.getMetadata().getName())
                 .addToAnnotations(STRIMZI_IO_USE_CONNECTOR_RESOURCES, "true")
@@ -273,7 +272,7 @@ public class DebeziumOperandController extends AbstractOperandController<Debeziu
         }
 
         final DebeziumKafkaConnector kctr = new DebeziumKafkaConnectorBuilder()
-            .withApiVersion(Constants.RESOURCE_GROUP_NAME + "/" + KafkaConnector.CONSUMED_VERSION)
+            .withApiVersion(DebeziumConstants.RESOURCE_GROUP_NAME + "/" + KafkaConnector.CONSUMED_VERSION)
             .withMetadata(new ObjectMetaBuilder()
                 .withName(connector.getMetadata().getName())
                 .addToLabels(STRIMZI_DOMAIN + "cluster", connector.getMetadata().getName())
@@ -310,9 +309,9 @@ public class DebeziumOperandController extends AbstractOperandController<Debeziu
 
     @Override
     public void status(ManagedConnector connector) {
-        KafkaConnector kctr = lookupConnector(getKubernetesClient(), connector)
+        DebeziumKafkaConnector kctr = lookupConnector(getKubernetesClient(), connector)
             .filter(_kctr -> _kctr.getStatus() != null).orElse(null);
-        KafkaConnect kc = lookupKafkaConnect(getKubernetesClient(), connector)
+        DebeziumKafkaConnect kc = lookupKafkaConnect(getKubernetesClient(), connector)
             .filter(_kc -> _kc.getStatus() != null).orElse(null);
         computeStatus(connector.getStatus().getConnectorStatus(), kc, kctr);
     }
@@ -326,12 +325,12 @@ public class DebeziumOperandController extends AbstractOperandController<Debeziu
     public boolean delete(ManagedConnector connector) {
         Boolean kctr = Resources.delete(
             getKubernetesClient(),
-            KafkaConnector.class,
+            DebeziumKafkaConnector.class,
             connector.getMetadata().getNamespace(),
             connector.getMetadata().getName());
         Boolean kc = Resources.delete(
             getKubernetesClient(),
-            KafkaConnect.class,
+            DebeziumKafkaConnect.class,
             connector.getMetadata().getNamespace(),
             connector.getMetadata().getName());
         Boolean secret = Resources.delete(

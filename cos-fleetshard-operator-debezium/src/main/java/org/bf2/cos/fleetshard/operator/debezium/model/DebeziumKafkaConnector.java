@@ -1,14 +1,17 @@
 package org.bf2.cos.fleetshard.operator.debezium.model;
 
+import org.bf2.cos.fleetshard.operator.debezium.DebeziumConstants;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespaced;
 import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.model.annotation.Group;
 import io.fabric8.kubernetes.model.annotation.Version;
 import io.strimzi.api.kafka.model.Constants;
-import io.strimzi.api.kafka.model.KafkaConnectorSpec;
 import io.sundr.builder.annotations.Buildable;
 import io.sundr.builder.annotations.BuildableReference;
 import lombok.EqualsAndHashCode;
@@ -22,10 +25,12 @@ import lombok.ToString;
     builderPackage = "io.fabric8.kubernetes.api.builder",
     refs = @BuildableReference(CustomResource.class),
     editableEnabled = false)
+
+
 @Version(Constants.V1BETA2)
-@Group("strimzi.rhoc.bf2.dev")
+@Group(DebeziumConstants.RESOURCE_GROUP_NAME)
 public class DebeziumKafkaConnector
-    extends CustomResource<KafkaConnectorSpec, KafkaConnectorStatus>
+    extends CustomResource<io.strimzi.api.kafka.model.KafkaConnectorSpec, io.strimzi.api.kafka.model.status.KafkaConnectorStatus>
     implements Namespaced {
 
     public DebeziumKafkaConnector() {
@@ -33,12 +38,24 @@ public class DebeziumKafkaConnector
     }
 
     @Override
-    protected KafkaConnectorSpec initSpec() {
-        return new KafkaConnectorSpec();
+    protected io.strimzi.api.kafka.model.KafkaConnectorSpec initSpec() {
+        return new io.strimzi.api.kafka.model.KafkaConnectorSpec();
     }
 
     @Override
-    protected KafkaConnectorStatus initStatus() {
-        return new KafkaConnectorStatus();
+    protected io.strimzi.api.kafka.model.status.KafkaConnectorStatus initStatus() {
+        return new io.strimzi.api.kafka.model.status.KafkaConnectorStatus();
+    }
+
+    @Override
+    @JsonIgnore
+    public String getPlural() {
+        return HasMetadata.getPlural(io.strimzi.api.kafka.model.KafkaConnector.class);
+    }
+
+    @Override
+    @JsonIgnore
+    public String getSingular() {
+        return HasMetadata.getSingular(io.strimzi.api.kafka.model.KafkaConnector.class);
     }
 }

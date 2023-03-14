@@ -10,6 +10,9 @@ import io.strimzi.api.kafka.model.KafkaConnect;
 import io.strimzi.api.kafka.model.KafkaConnector;
 
 public final class DebeziumConstants {
+
+    public static final String RESOURCE_GROUP_NAME = "strimzi.rhoc.bf2.dev";
+
     public static final String OPERATOR_TYPE = "debezium-connector-operator";
     public static final String OPERATOR_RUNTIME = "kafka-connect";
 
@@ -45,14 +48,14 @@ public final class DebeziumConstants {
     public static final List<ResourceDefinitionContext> RESOURCE_TYPES = List.of(
         new ResourceDefinitionContext.Builder()
             .withNamespaced(true)
-            .withGroup("strimzi.rhoc.bf2.dev")
+            .withGroup(RESOURCE_GROUP_NAME)
             .withVersion(KafkaConnect.CONSUMED_VERSION)
             .withKind(KafkaConnect.RESOURCE_KIND)
             .withPlural(KafkaConnect.RESOURCE_PLURAL)
             .build(),
         new ResourceDefinitionContext.Builder()
             .withNamespaced(true)
-            .withGroup("strimzi.rhoc.bf2.dev")
+            .withGroup(RESOURCE_GROUP_NAME)
             .withVersion(KafkaConnector.CONSUMED_VERSION)
             .withKind(KafkaConnector.RESOURCE_KIND)
             .withPlural(KafkaConnector.RESOURCE_PLURAL)

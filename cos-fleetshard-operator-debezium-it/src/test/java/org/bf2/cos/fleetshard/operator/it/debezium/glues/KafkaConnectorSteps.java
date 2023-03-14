@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.bf2.cos.fleetshard.it.cucumber.support.StepsSupport;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnector;
 import org.bf2.cos.fleetshard.support.json.JacksonUtil;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -52,7 +53,7 @@ public class KafkaConnectorSteps extends StepsSupport {
 
     @And("the kctr has an entry at path {string} with value {string}")
     public void kctr_has_a_path_matching_value(String path, String value) {
-        KafkaConnector res = kafkaConncetor();
+        DebeziumKafkaConnector res = kafkaConncetor();
 
         assertThat(res)
             .isNotNull();
@@ -64,7 +65,7 @@ public class KafkaConnectorSteps extends StepsSupport {
 
     @And("the kctr has an entry at path {string} with value {int}")
     public void kctr_has_a_path_matching_value(String path, int value) {
-        KafkaConnector res = kafkaConncetor();
+        DebeziumKafkaConnector res = kafkaConncetor();
 
         assertThat(res)
             .isNotNull();
@@ -76,7 +77,7 @@ public class KafkaConnectorSteps extends StepsSupport {
 
     @And("the kctr has an entry at path {string} with value {bool}")
     public void kctr_has_a_path_matching_value(String path, Boolean value) {
-        KafkaConnector res = kafkaConncetor();
+        DebeziumKafkaConnector res = kafkaConncetor();
 
         assertThat(res)
             .isNotNull();
@@ -88,7 +89,7 @@ public class KafkaConnectorSteps extends StepsSupport {
 
     @And("the kctr has an object at path {string} containing:")
     public void kctr_has_a_path_matching_object(String path, String content) {
-        KafkaConnector res = kafkaConncetor();
+        DebeziumKafkaConnector res = kafkaConncetor();
 
         assertThat(res)
             .isNotNull();
@@ -100,7 +101,7 @@ public class KafkaConnectorSteps extends StepsSupport {
 
     @And("the kctr has an array at path {string} containing:")
     public void kctr_has_a_path_containing_object(String path, DataTable elements) {
-        KafkaConnector res = kafkaConncetor();
+        DebeziumKafkaConnector res = kafkaConncetor();
 
         assertThat(res)
             .isNotNull();
@@ -116,7 +117,7 @@ public class KafkaConnectorSteps extends StepsSupport {
 
     @And("the kctr has annotations containing:")
     public void kctr_annotation_contains(DataTable table) {
-        KafkaConnector res = kafkaConncetor();
+        DebeziumKafkaConnector res = kafkaConncetor();
 
         assertThat(res)
             .isNotNull();
@@ -126,7 +127,7 @@ public class KafkaConnectorSteps extends StepsSupport {
 
     @And("the kctr has labels containing:")
     public void kctr_label_contains(DataTable table) {
-        KafkaConnector res = kafkaConncetor();
+        DebeziumKafkaConnector res = kafkaConncetor();
 
         assertThat(res)
             .isNotNull();
@@ -136,7 +137,7 @@ public class KafkaConnectorSteps extends StepsSupport {
 
     @And("the kctr has config containing:")
     public void kc_config_contains(DataTable table) {
-        KafkaConnector res = kafkaConncetor();
+        DebeziumKafkaConnector res = kafkaConncetor();
 
         assertThat(res)
             .isNotNull();
@@ -235,16 +236,16 @@ public class KafkaConnectorSteps extends StepsSupport {
             });
     }
 
-    private KafkaConnector kafkaConncetor() {
-        return kubernetesClient.resources(KafkaConnector.class)
+    private DebeziumKafkaConnector kafkaConncetor() {
+        return kubernetesClient.resources(DebeziumKafkaConnector.class)
             .inNamespace(ctx.connector().getMetadata().getNamespace())
             .withName(ctx.connector().getMetadata().getName())
             .get();
     }
 
-    private void untilKafkaConnector(Consumer<KafkaConnector> predicate) {
+    private void untilKafkaConnector(Consumer<DebeziumKafkaConnector> predicate) {
         awaiter.untilAsserted(() -> {
-            KafkaConnector res = kafkaConncetor();
+            DebeziumKafkaConnector res = kafkaConncetor();
 
             assertThat(res).isNotNull();
             assertThat(res).satisfies(predicate);

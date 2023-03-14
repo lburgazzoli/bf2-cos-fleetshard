@@ -15,6 +15,8 @@ import org.bf2.cos.fleetshard.api.ConnectorStatusSpec;
 import org.bf2.cos.fleetshard.api.ManagedConnector;
 import org.bf2.cos.fleetshard.api.ResourceRef;
 import org.bf2.cos.fleetshard.operator.debezium.model.ConnectorStatus;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnect;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnector;
 import org.bf2.cos.fleetshard.operator.debezium.model.KafkaConnectorStatus;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,7 +25,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.utils.Serialization;
-import io.strimzi.api.kafka.model.Constants;
 import io.strimzi.api.kafka.model.KafkaConnect;
 import io.strimzi.api.kafka.model.KafkaConnector;
 import io.strimzi.api.kafka.model.status.Condition;
@@ -32,8 +33,9 @@ import static org.bf2.cos.fleetshard.operator.debezium.DebeziumConstants.EXTERNA
 import static org.bf2.cos.fleetshard.operator.debezium.DebeziumConstants.EXTERNAL_CONFIG_FILE;
 
 public class DebeziumOperandSupport {
-    public static final String AV_KAFKA_CONNECT = Constants.RESOURCE_GROUP_NAME + "/" + KafkaConnect.CONSUMED_VERSION;
-    public static final String AV_KAFKA_CONNECTOR = Constants.RESOURCE_GROUP_NAME + "/" + KafkaConnector.CONSUMED_VERSION;
+    public static final String AV_KAFKA_CONNECT = DebeziumConstants.RESOURCE_GROUP_NAME + "/" + KafkaConnect.CONSUMED_VERSION;
+    public static final String AV_KAFKA_CONNECTOR = DebeziumConstants.RESOURCE_GROUP_NAME + "/"
+        + KafkaConnector.CONSUMED_VERSION;
 
     public static boolean isSecret(HasMetadata ref) {
         return Objects.equals("v1", ref.getApiVersion())
@@ -70,7 +72,7 @@ public class DebeziumOperandSupport {
             && Objects.equals(KafkaConnector.RESOURCE_KIND, ref.getKind());
     }
 
-    public static KafkaConnectorStatus connectorStatus(KafkaConnector connector) {
+    public static KafkaConnectorStatus connectorStatus(DebeziumKafkaConnector connector) {
         KafkaConnectorStatus status = null;
 
         if (connector.getStatus().getConnectorStatus() != null
@@ -141,17 +143,17 @@ public class DebeziumOperandSupport {
         return props;
     }
 
-    public static Optional<KafkaConnector> lookupConnector(KubernetesClient client, ManagedConnector connector) {
+    public static Optional<DebeziumKafkaConnector> lookupConnector(KubernetesClient client, ManagedConnector connector) {
         return Optional.ofNullable(
-            client.resources(KafkaConnector.class)
+            client.resources(DebeziumKafkaConnector.class)
                 .inNamespace(connector.getMetadata().getNamespace())
                 .withName(connector.getMetadata().getName())
                 .get());
     }
 
-    public static Optional<KafkaConnect> lookupKafkaConnect(KubernetesClient client, ManagedConnector connector) {
+    public static Optional<DebeziumKafkaConnect> lookupKafkaConnect(KubernetesClient client, ManagedConnector connector) {
         return Optional.ofNullable(
-            client.resources(KafkaConnect.class)
+            client.resources(DebeziumKafkaConnect.class)
                 .inNamespace(connector.getMetadata().getNamespace())
                 .withName(connector.getMetadata().getName())
                 .get());
@@ -183,7 +185,7 @@ public class DebeziumOperandSupport {
     }
 
     private static void computeConnectorStatus(
-        KafkaConnector kafkaConnector,
+        DebeziumKafkaConnector kafkaConnector,
         ConnectorStatus connectorStatus) {
 
         if (null != kafkaConnector) {
@@ -277,7 +279,7 @@ public class DebeziumOperandSupport {
     }
 
     private static void computeKafkaConnectStatus(
-        KafkaConnect kafkaConnect,
+        DebeziumKafkaConnect kafkaConnect,
         ConnectorStatus connectorStatus) {
         if (null != kafkaConnect) {
             Condition kconnectReadyCondition = null;
@@ -326,7 +328,8 @@ public class DebeziumOperandSupport {
         }
     }
 
-    public static void computeStatus(ConnectorStatusSpec statusSpec, KafkaConnect kafkaConnect, KafkaConnector connector) {
+    public static void computeStatus(ConnectorStatusSpec statusSpec, DebeziumKafkaConnect kafkaConnect,
+        DebeziumKafkaConnector connector) {
         var managedConnectorStatus = new ConnectorStatus(statusSpec);
         computeConnectorStatus(connector, managedConnectorStatus);
         if (null == managedConnectorStatus.isConnectorReady()) {

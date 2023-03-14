@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.bf2.cos.fleetshard.it.cucumber.support.StepsSupport;
 import org.bf2.cos.fleetshard.operator.debezium.DebeziumOperandController;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnect;
 import org.bf2.cos.fleetshard.support.json.JacksonUtil;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,7 +37,7 @@ public class KafkaConnectSteps extends StepsSupport {
 
     @When("the kc has conditions:")
     public void kc_add_conditions(DataTable table) {
-        kubernetesClient.resources(KafkaConnect.class)
+        kubernetesClient.resources(DebeziumKafkaConnect.class)
             .inNamespace(ctx.connector().getMetadata().getNamespace())
             .withName(ctx.connector().getMetadata().getName())
             .editStatus(resource -> {
@@ -70,21 +71,21 @@ public class KafkaConnectSteps extends StepsSupport {
 
     @When("the kc path {string} is set to json:")
     public void kc_pointer(String path, String payload) {
-        kubernetesClient.resources(KafkaConnect.class)
+        kubernetesClient.resources(DebeziumKafkaConnect.class)
             .inNamespace(ctx.connector().getMetadata().getNamespace())
             .withName(ctx.connector().getMetadata().getName())
             .edit(res -> {
                 JsonNode replacement = Serialization.unmarshal(payload, JsonNode.class);
                 JsonNode replaced = PARSER.parse(Serialization.asJson(res)).set(path, replacement).json();
 
-                return JacksonUtil.treeToValue(replaced, KafkaConnect.class);
+                return JacksonUtil.treeToValue(replaced, DebeziumKafkaConnect.class);
             });
     }
 
     @And("the kc has an entry at path {string} with value {string}")
     public void kc_has_a_path_matching_value(String path, String value) {
         awaiter.untilAsserted(() -> {
-            KafkaConnect res = kafkaConnect();
+            DebeziumKafkaConnect res = kafkaConnect();
 
             assertThat(res)
                 .isNotNull();
@@ -98,7 +99,7 @@ public class KafkaConnectSteps extends StepsSupport {
     @And("the kc has an entry at path {string} with value {int}")
     public void kc_has_a_path_matching_value(String path, int value) {
         awaiter.untilAsserted(() -> {
-            KafkaConnect res = kafkaConnect();
+            DebeziumKafkaConnect res = kafkaConnect();
 
             assertThat(res)
                 .isNotNull();
@@ -112,7 +113,7 @@ public class KafkaConnectSteps extends StepsSupport {
     @And("the kc has an entry at path {string} with value {bool}")
     public void kc_has_a_path_matching_value(String path, Boolean value) {
         awaiter.untilAsserted(() -> {
-            KafkaConnect res = kafkaConnect();
+            DebeziumKafkaConnect res = kafkaConnect();
 
             assertThat(res)
                 .isNotNull();
@@ -125,7 +126,7 @@ public class KafkaConnectSteps extends StepsSupport {
 
     @And("the kc has an object at path {string} containing:")
     public void kc_has_a_path_matching_object(String path, String content) {
-        KafkaConnect res = kafkaConnect();
+        DebeziumKafkaConnect res = kafkaConnect();
         content = ctx.resolvePlaceholders(content);
 
         assertThat(res)
@@ -138,7 +139,7 @@ public class KafkaConnectSteps extends StepsSupport {
 
     @And("the kc has an array at path {string} containing:")
     public void kc_has_a_path_containing_object(String path, DataTable elements) {
-        KafkaConnect res = kafkaConnect();
+        DebeziumKafkaConnect res = kafkaConnect();
 
         assertThat(res)
             .isNotNull();
@@ -154,7 +155,7 @@ public class KafkaConnectSteps extends StepsSupport {
 
     @And("the kc has annotations containing:")
     public void kc_annotation_contains(DataTable table) {
-        KafkaConnect res = kafkaConnect();
+        DebeziumKafkaConnect res = kafkaConnect();
 
         assertThat(res)
             .isNotNull();
@@ -164,7 +165,7 @@ public class KafkaConnectSteps extends StepsSupport {
 
     @And("the kc has labels containing:")
     public void kc_label_contains(DataTable table) {
-        KafkaConnect res = kafkaConnect();
+        DebeziumKafkaConnect res = kafkaConnect();
 
         assertThat(res)
             .isNotNull();
@@ -174,7 +175,7 @@ public class KafkaConnectSteps extends StepsSupport {
 
     @And("the kc has config containing:")
     public void kc_config_contains(DataTable table) {
-        KafkaConnect res = kafkaConnect();
+        DebeziumKafkaConnect res = kafkaConnect();
 
         assertThat(res)
             .isNotNull();
@@ -220,16 +221,16 @@ public class KafkaConnectSteps extends StepsSupport {
             .get();
     }
 
-    private KafkaConnect kafkaConnect() {
-        return kubernetesClient.resources(KafkaConnect.class)
+    private DebeziumKafkaConnect kafkaConnect() {
+        return kubernetesClient.resources(DebeziumKafkaConnect.class)
             .inNamespace(ctx.connector().getMetadata().getNamespace())
             .withName(ctx.connector().getMetadata().getName())
             .get();
     }
 
-    private void untilKc(Consumer<KafkaConnect> predicate) {
+    private void untilKc(Consumer<DebeziumKafkaConnect> predicate) {
         awaiter.untilAsserted(() -> {
-            KafkaConnect res = kafkaConnect();
+            DebeziumKafkaConnect res = kafkaConnect();
 
             assertThat(res).isNotNull();
             assertThat(res).satisfies(predicate);
