@@ -285,18 +285,20 @@ public class DebeziumOperandSupport {
             Condition kconnectReadyCondition = null;
             Condition kconnectNotReadyCondition = null;
 
-            for (Condition condition : kafkaConnect.getStatus().getConditions()) {
-                switch (condition.getType()) {
-                    case "Ready":
-                        kconnectReadyCondition = condition;
-                        break;
-                    case "NotReady":
-                        kconnectNotReadyCondition = condition;
-                        break;
-                    default:
-                        break;
+            if (kafkaConnect.getStatus().getConditions() != null) {
+                for (Condition condition : kafkaConnect.getStatus().getConditions()) {
+                    switch (condition.getType()) {
+                        case "Ready":
+                            kconnectReadyCondition = condition;
+                            break;
+                        case "NotReady":
+                            kconnectNotReadyCondition = condition;
+                            break;
+                        default:
+                            break;
+                    }
+                    connectorStatus.addCondition(cloneCondition(condition, "KafkaConnect:"));
                 }
-                connectorStatus.addCondition(cloneCondition(condition, "KafkaConnect:"));
             }
 
             boolean kafkaConnectReady = kconnectReadyCondition != null && "True".equals(kconnectReadyCondition.getStatus())
