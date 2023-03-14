@@ -73,6 +73,7 @@
         <module>cos-fleetshard-poms</module>
         <module>cos-fleetshard-api</module>
         <module>cos-fleetshard-support</module>
+        <module>cos-fleetshard-support-strimzi</module>
         <module>cos-fleetshard-it</module>
         <module>cos-fleetshard-sync</module>
         <module>cos-fleetshard-sync-it</module>
@@ -263,6 +264,11 @@
             <dependency>
                 <groupId>org.bf2</groupId>
                 <artifactId>cos-fleetshard-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bf2</groupId>
+                <artifactId>cos-fleetshard-support-strimzi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

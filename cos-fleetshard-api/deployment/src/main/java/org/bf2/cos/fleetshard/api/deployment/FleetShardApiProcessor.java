@@ -6,9 +6,17 @@ import org.jboss.jandex.DotName;
 import org.jboss.jandex.Type;
 
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveHierarchyBuildItem;
 
 public class FleetShardApiProcessor {
+    private static final String FEATURE = "cos-fleetshard-api";
+
+    @BuildStep
+    FeatureBuildItem feature() {
+        return new FeatureBuildItem(FEATURE);
+    }
+
     @BuildStep
     List<ReflectiveHierarchyBuildItem> fleetShardReflectiveClasses() {
         return List.of(
