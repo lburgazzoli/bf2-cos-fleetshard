@@ -6,13 +6,4 @@ commonLabels:
   app: strimzi
  
 resources:
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/040-Crd-kafka.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/041-Crd-kafkaconnect.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/042-Crd-strimzipodset.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/043-Crd-kafkatopic.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/044-Crd-kafkauser.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/045-Crd-kafkamirrormaker.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/046-Crd-kafkabridge.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/047-Crd-kafkaconnector.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/048-Crd-kafkamirrormaker2.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/049-Crd-kafkarebalance.yaml
+  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/strimzi-crds-latest.yaml

@@ -7,23 +7,7 @@ commonLabels:
  
 resources:
   # For the workflow pipeline to work the first resource should be the strimzi operator image.
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/010-ServiceAccount-strimzi-cluster-operator.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/020-ClusterRole-strimzi-cluster-operator-role.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/020-RoleBinding-strimzi-cluster-operator.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/021-ClusterRole-strimzi-cluster-operator-role.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/021-ClusterRoleBinding-strimzi-cluster-operator.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/022-ClusterRole-strimzi-cluster-operator-role.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/022-RoleBinding-strimzi-cluster-operator.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/023-ClusterRole-strimzi-cluster-operator-role.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/023-RoleBinding-strimzi-cluster-operator.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/030-ClusterRole-strimzi-kafka-broker.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/030-ClusterRoleBinding-strimzi-cluster-operator-kafka-broker-delegation.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/031-ClusterRole-strimzi-entity-operator.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/031-RoleBinding-strimzi-cluster-operator-entity-operator-delegation.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/033-ClusterRole-strimzi-kafka-client.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/033-ClusterRoleBinding-strimzi-cluster-operator-kafka-client-delegation.yaml  
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/050-ConfigMap-strimzi-cluster-operator.yaml
-  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/060-Deployment-strimzi-cluster-operator.yaml
+  - https://github.com/lburgazzoli/strimzi-kafka-operator-builder/releases/download/latest/strimzi-cluster-operator-latest.yaml
   # enable Strimzi to monitor cluster wide
   - 023-ClusterRoleBinding-strimzi-cluster-operator.yaml
   # enable Strimzi to access resources cluster wide
