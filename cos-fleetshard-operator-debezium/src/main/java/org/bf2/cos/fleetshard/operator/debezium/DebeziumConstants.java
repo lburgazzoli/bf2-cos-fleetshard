@@ -6,7 +6,6 @@ import java.util.Map;
 import org.bf2.cos.fleetshard.support.CollectionUtils;
 
 import io.fabric8.kubernetes.client.dsl.base.ResourceDefinitionContext;
-import io.strimzi.api.kafka.model.Constants;
 import io.strimzi.api.kafka.model.KafkaConnect;
 import io.strimzi.api.kafka.model.KafkaConnector;
 
@@ -46,14 +45,14 @@ public final class DebeziumConstants {
     public static final List<ResourceDefinitionContext> RESOURCE_TYPES = List.of(
         new ResourceDefinitionContext.Builder()
             .withNamespaced(true)
-            .withGroup(Constants.RESOURCE_GROUP_NAME)
+            .withGroup("strimzi.rhoc.bf2.dev")
             .withVersion(KafkaConnect.CONSUMED_VERSION)
             .withKind(KafkaConnect.RESOURCE_KIND)
             .withPlural(KafkaConnect.RESOURCE_PLURAL)
             .build(),
         new ResourceDefinitionContext.Builder()
             .withNamespaced(true)
-            .withGroup(Constants.RESOURCE_GROUP_NAME)
+            .withGroup("strimzi.rhoc.bf2.dev")
             .withVersion(KafkaConnector.CONSUMED_VERSION)
             .withKind(KafkaConnector.RESOURCE_KIND)
             .withPlural(KafkaConnector.RESOURCE_PLURAL)

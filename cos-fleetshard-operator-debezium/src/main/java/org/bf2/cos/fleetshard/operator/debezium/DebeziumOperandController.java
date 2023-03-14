@@ -15,6 +15,10 @@ import org.bf2.cos.fleetshard.api.ServiceAccountSpec;
 import org.bf2.cos.fleetshard.operator.FleetShardOperatorConfig;
 import org.bf2.cos.fleetshard.operator.connector.ConnectorConfiguration;
 import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumDataShape;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnect;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnectBuilder;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnector;
+import org.bf2.cos.fleetshard.operator.debezium.model.DebeziumKafkaConnectorBuilder;
 import org.bf2.cos.fleetshard.operator.debezium.model.KeyAndValueConverters;
 import org.bf2.cos.fleetshard.operator.operand.AbstractOperandController;
 import org.bf2.cos.fleetshard.support.resources.Resources;
@@ -42,10 +46,8 @@ import io.strimzi.api.kafka.model.ExternalConfigurationReferenceBuilder;
 import io.strimzi.api.kafka.model.InlineLoggingBuilder;
 import io.strimzi.api.kafka.model.JmxPrometheusExporterMetricsBuilder;
 import io.strimzi.api.kafka.model.KafkaConnect;
-import io.strimzi.api.kafka.model.KafkaConnectBuilder;
 import io.strimzi.api.kafka.model.KafkaConnectSpecBuilder;
 import io.strimzi.api.kafka.model.KafkaConnector;
-import io.strimzi.api.kafka.model.KafkaConnectorBuilder;
 import io.strimzi.api.kafka.model.KafkaConnectorSpecBuilder;
 import io.strimzi.api.kafka.model.PasswordSecretSourceBuilder;
 import io.strimzi.api.kafka.model.authentication.KafkaClientAuthenticationPlainBuilder;
@@ -236,7 +238,7 @@ public class DebeziumOperandController extends AbstractOperandController<Debeziu
 
         kcsb.withImage(shardMetadata.getContainerImage());
 
-        final KafkaConnect kc = new KafkaConnectBuilder()
+        final DebeziumKafkaConnect kc = new DebeziumKafkaConnectBuilder()
             .withApiVersion(Constants.RESOURCE_GROUP_NAME + "/" + KafkaConnect.CONSUMED_VERSION)
             .withMetadata(new ObjectMetaBuilder()
                 .withName(connector.getMetadata().getName())
@@ -270,7 +272,7 @@ public class DebeziumOperandController extends AbstractOperandController<Debeziu
                 break;
         }
 
-        final KafkaConnector kctr = new KafkaConnectorBuilder()
+        final DebeziumKafkaConnector kctr = new DebeziumKafkaConnectorBuilder()
             .withApiVersion(Constants.RESOURCE_GROUP_NAME + "/" + KafkaConnector.CONSUMED_VERSION)
             .withMetadata(new ObjectMetaBuilder()
                 .withName(connector.getMetadata().getName())
