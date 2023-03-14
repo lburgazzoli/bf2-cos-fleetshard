@@ -82,10 +82,9 @@
             <groupId>org.bf2</groupId>
             <artifactId>cos-fleetshard-operator</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>io.strimzi</groupId>
-            <artifactId>api</artifactId>
+            <groupId>org.bf2</groupId>
+            <artifactId>cos-fleetshard-strimzi</artifactId>
         </dependency>
 
         <dependency>
