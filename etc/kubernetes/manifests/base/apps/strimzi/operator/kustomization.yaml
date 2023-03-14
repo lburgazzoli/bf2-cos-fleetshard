@@ -2,6 +2,12 @@
 generatorOptions:
   disableNameSuffixHash: true
 
+configurations:
+  - config/config.yaml
+
+namePrefix:
+  cos-
+
 commonLabels:
   app: strimzi
  
@@ -54,6 +60,8 @@ patches:
                     name: strimzi-override-config
                     key: log.level
                     optional: true
+              - name: STRIMZI_LEADER_ELECTION_LEASE_NAME
+                value: cos-strimzi-cluster-operator
               resources:
                 limits:
                   cpu: "1000m"

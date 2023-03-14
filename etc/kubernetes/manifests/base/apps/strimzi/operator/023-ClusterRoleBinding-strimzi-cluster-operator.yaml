@@ -12,8 +12,8 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: strimzi-cluster-operator-watched
+  name: cos-strimzi-cluster-operator-watched
 subjects:
 - kind: ServiceAccount
-  name: strimzi-cluster-operator
+  name: cos-strimzi-cluster-operator
   namespace: myproject

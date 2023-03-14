@@ -1,0 +1,9 @@
+nameReference:
+  - kind: ClusterRole
+    fieldSpecs:
+      - kind: ClusterRoleBinding
+        path: roleRef/name
+  - kind: Role
+    fieldSpecs:
+      - kind: RoleBinding
+        path: roleRef/name
