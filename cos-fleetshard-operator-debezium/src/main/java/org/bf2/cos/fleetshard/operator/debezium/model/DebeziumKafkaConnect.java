@@ -10,6 +10,9 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespaced;
 import io.fabric8.kubernetes.client.CustomResource;
 import io.fabric8.kubernetes.model.annotation.Group;
+import io.fabric8.kubernetes.model.annotation.Kind;
+import io.fabric8.kubernetes.model.annotation.Plural;
+import io.fabric8.kubernetes.model.annotation.Singular;
 import io.fabric8.kubernetes.model.annotation.Version;
 import io.strimzi.api.kafka.model.Constants;
 import io.sundr.builder.annotations.Buildable;
@@ -25,6 +28,9 @@ import lombok.ToString;
     builderPackage = "io.fabric8.kubernetes.api.builder",
     refs = @BuildableReference(CustomResource.class),
     editableEnabled = false)
+@Singular(io.strimzi.api.kafka.model.KafkaConnect.RESOURCE_SINGULAR)
+@Plural(io.strimzi.api.kafka.model.KafkaConnect.RESOURCE_PLURAL)
+@Kind(io.strimzi.api.kafka.model.KafkaConnect.RESOURCE_KIND)
 @Version(Constants.V1BETA2)
 @Group(DebeziumConstants.RESOURCE_GROUP_NAME)
 public class DebeziumKafkaConnect

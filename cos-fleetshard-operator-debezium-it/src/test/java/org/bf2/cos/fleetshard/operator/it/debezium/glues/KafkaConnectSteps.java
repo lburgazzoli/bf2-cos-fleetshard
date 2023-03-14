@@ -20,7 +20,6 @@ import io.cucumber.java.en.When;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import io.strimzi.api.kafka.model.JmxPrometheusExporterMetrics;
-import io.strimzi.api.kafka.model.KafkaConnect;
 import io.strimzi.api.kafka.model.status.Condition;
 import io.strimzi.api.kafka.model.status.ConditionBuilder;
 import io.strimzi.api.kafka.model.status.KafkaConnectStatus;
@@ -195,7 +194,7 @@ public class KafkaConnectSteps extends StepsSupport {
 
     @And("the kc has the correct metrics config map")
     public void kc_metrics_config_map() {
-        KafkaConnect kc = kafkaConnect();
+        DebeziumKafkaConnect kc = kafkaConnect();
         assertThat(kc).isNotNull();
         assertThat(kc.getSpec().getMetricsConfig().getType()).isEqualTo("jmxPrometheusExporter");
         final String kafkaConnectMetricsConfigMapName = ctx.connector().getMetadata().getName()

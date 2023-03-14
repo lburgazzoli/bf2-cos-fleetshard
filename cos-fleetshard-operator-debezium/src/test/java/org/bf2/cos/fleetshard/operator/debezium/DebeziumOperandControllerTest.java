@@ -40,7 +40,6 @@ import io.fabric8.kubernetes.api.model.LocalObjectReference;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.utils.Serialization;
-import io.strimzi.api.kafka.model.Constants;
 import io.strimzi.api.kafka.model.JmxPrometheusExporterMetrics;
 import io.strimzi.api.kafka.model.KafkaConnect;
 import io.strimzi.api.kafka.model.KafkaConnector;
@@ -132,10 +131,10 @@ public class DebeziumOperandControllerTest {
 
         assertThat(controller.getResourceTypes())
             .hasSize(2)
-            .anyMatch(ctx -> Constants.RESOURCE_GROUP_NAME.equals(ctx.getGroup())
+            .anyMatch(ctx -> DebeziumConstants.RESOURCE_GROUP_NAME.equals(ctx.getGroup())
                 && KafkaConnect.CONSUMED_VERSION.equals(ctx.getVersion())
                 && KafkaConnect.RESOURCE_KIND.equals(ctx.getKind()))
-            .anyMatch(ctx -> Constants.RESOURCE_GROUP_NAME.equals(ctx.getGroup())
+            .anyMatch(ctx -> DebeziumConstants.RESOURCE_GROUP_NAME.equals(ctx.getGroup())
                 && KafkaConnector.CONSUMED_VERSION.equals(ctx.getVersion())
                 && KafkaConnector.RESOURCE_KIND.equals(ctx.getKind()));
     }
